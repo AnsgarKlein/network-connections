@@ -1,0 +1,23 @@
+[tool.pydoclint]
+# Dont print the file names being checked to the terminal
+quiet = true
+
+# Style of docstring being used
+style = 'sphinx'
+
+# Type hints in signature are only supported in Python >= 3.5
+arg-type-hints-in-signature = false
+
+arg-type-hints-in-docstring = false
+
+check-arg-order = true
+
+skip-checking-short-docstrings = false
+
+skip-checking-raises = false
+
+require-return-section-when-returning-nothing = false
+
+check-return-types = false
+
+check-yield-types = true

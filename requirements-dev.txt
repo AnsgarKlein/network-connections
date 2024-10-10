@@ -1,0 +1,3 @@
+mypy==1.11.*
+pydoclint==0.5.*
+pylint==3.2.*
