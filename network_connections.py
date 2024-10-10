@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import sys
-import subprocess
-import os
 import json
+import os
+import subprocess
+import sys
 
 from typing import Dict
 from typing import List
