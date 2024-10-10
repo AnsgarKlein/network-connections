@@ -28,10 +28,8 @@ import os
 import subprocess
 import sys
 
-from typing import Dict
-from typing import List
 
-def run_netstat() -> str:
+def run_netstat(): # type: () -> str
     netstat_cmd = [
         'netstat',
         '--numeric',
@@ -59,8 +57,8 @@ def run_netstat() -> str:
         print(f'Error: {e}', file=sys.stderr)
         raise e
 
-def tokenize_netstat_headers(headers_line: str, all_lines: List[str]) -> List[str]:
-    def is_whitespace_column(index: int) -> bool:
+def tokenize_netstat_headers(headers_line, all_lines): # type: (str, list) -> list
+    def is_whitespace_column(index): # type: (int) -> bool
         for line in all_lines:
             # Index is not on this line
             if len(line) < index:
@@ -99,7 +97,7 @@ def tokenize_netstat_headers(headers_line: str, all_lines: List[str]) -> List[st
 
     return headers
 
-def tokenize_netstat_data(data_lines: List[str], headers: List[str]) -> List[Dict]:
+def tokenize_netstat_data(data_lines, headers): # type: (list, list) -> list
     data_list = []
 
     for line in data_lines:
@@ -116,7 +114,7 @@ def tokenize_netstat_data(data_lines: List[str], headers: List[str]) -> List[Dic
 
     return data_list
 
-def parse_netstat_output(stdout: str):
+def parse_netstat_output(stdout): # type: (str) -> list
     all_lines = stdout.strip().split('\n')
     all_lines = [l.strip() for l in all_lines]
 
@@ -135,7 +133,7 @@ def parse_netstat_output(stdout: str):
     data_list = tokenize_netstat_data(data_lines, headers)
     return data_list
 
-def post_process_data(data_list: List[Dict]) -> List[Dict]:
+def post_process_data(data_list): # type: (list) -> list
     # Data entries are guaranteed to all have the same keys, so we
     # just need to check in one of them.
     if 'Proto' not in data_list[0]:
@@ -154,7 +152,7 @@ def post_process_data(data_list: List[Dict]) -> List[Dict]:
 
     return output
 
-def count_connections(data_list: List[Dict]) -> Dict:
+def count_connections(data_list): # type: (list) -> dict
     # Data entries are guaranteed to all have the same keys, so we
     # just need to check in one of them.
     if 'State' not in data_list[0]:
@@ -192,7 +190,7 @@ def count_connections(data_list: List[Dict]) -> Dict:
     #     },
     #     ...
     #   }
-    connections: dict = {proto: {} for proto in supported_protocols}
+    connections = {proto: {} for proto in supported_protocols} # type: dict
     for proto in supported_protocols:
         for state in supported_states:
             connections[proto][state] = 0
@@ -223,7 +221,7 @@ def count_connections(data_list: List[Dict]) -> Dict:
 
     return connections
 
-def main() -> None:
+def main(): # type: () -> None
     # Run netstat and capture stdout
     netstat_stdout = run_netstat()
 
