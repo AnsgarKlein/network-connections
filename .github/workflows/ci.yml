@@ -1,0 +1,35 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: 'ubuntu-latest'
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dev dependencies
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          echo "Virtualenv: $VIRTUAL_ENV"
+          pip install -U pip
+          pip install -U -r requirements-dev.txt
+
+      - name: Lint
+        run: |
+          source venv/bin/activate
+          scripts/lint.sh
