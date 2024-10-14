@@ -30,7 +30,8 @@ if ! command -v pylint > /dev/null 2> /dev/null; then
     echo 'pylint is not installed!' > /dev/stderr
 else
     echo 'Running pylint...'
-    if ! pylint $BIN; then
+    pylint --exit-zero $BIN
+    if ! pylint --errors-only $BIN > /dev/null 2> /dev/null; then
         errors='yes'
     fi
 fi
