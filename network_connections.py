@@ -25,9 +25,14 @@
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 
+
+def check_netstat_availability(): # type: () -> bool
+    path = shutil.which('netstat')
+    return path is not None
 
 def run_netstat(): # type: () -> str
     netstat_cmd = [
@@ -214,6 +219,10 @@ def count_connections(data_list): # type: (list) -> dict
     return connections
 
 def main(): # type: () -> None
+    if not check_netstat_availability():
+        print('Error: netstat not found or not installed', file=sys.stderr)
+        sys.exit(1)
+
     # Run netstat and capture stdout
     netstat_stdout = run_netstat()
 
