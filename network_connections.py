@@ -37,25 +37,21 @@ def run_netstat(): # type: () -> str
         '--protocol=inet,inet6'
     ]
 
-    try:
-        environ = os.environ.copy()
-        environ['LC_ALL'] = 'en_US'
+    environ = os.environ.copy()
+    environ['LC_ALL'] = 'en_US'
 
-        cmd = subprocess.run(
-            netstat_cmd,
-            env=environ,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=True)
+    cmd = subprocess.run(
+        netstat_cmd,
+        env=environ,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=True)
 
-        if cmd.returncode != 0:
-            raise Exception(f'Error running netstat: {cmd.stderr}')
+    if cmd.returncode != 0:
+        raise Exception(f'Error running netstat: {cmd.stderr}')
 
-        return cmd.stdout
-    except Exception as e:
-        print(f'Error: {e}', file=sys.stderr)
-        raise e
+    return cmd.stdout
 
 def tokenize_netstat_headers(headers_line, all_lines): # type: (str, list) -> list
     def is_whitespace_column(index): # type: (int) -> bool
