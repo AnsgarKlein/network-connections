@@ -88,10 +88,6 @@ def tokenize_netstat_headers(headers_line, all_lines): # type: (str, list) -> li
     if current_header != '':
         headers.append(current_header)
 
-    #If this is the second space we found in a row it is highly
-    #unlikely that we are still parsing the same header.
-    #if len(current_header) > 1 and current_header[-1] == ' ' or current_header[-1] == '\\t':
-
     # Strip whitespaces from headers
     headers = [h.strip() for h in headers]
 
