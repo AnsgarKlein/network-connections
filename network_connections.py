@@ -23,6 +23,14 @@
 # SOFTWARE.
 
 
+"""
+This script uses the netstat command line tool to gather a list of active
+connections. This information is parsed and categorized by connection protocol
+and connection state.
+It is then printed out in JSON format.
+"""
+
+
 import json
 import os
 import shutil
@@ -31,10 +39,23 @@ import sys
 
 
 def check_netstat_availability(): # type: () -> bool
+    """
+    Check if netstat is installed and can be found in PATH.
+
+    :return: True if netstat is in PATH, false otherwise
+    """
+
     path = shutil.which('netstat')
     return path is not None
 
 def run_netstat(): # type: () -> str
+    """
+    Run netstat command and return stdout.
+
+    :raises Exception: When experiencing problems with netstat command
+    :return: Stdout of netstat command
+    """
+
     netstat_cmd = [
         'netstat',
         '--numeric',
@@ -59,6 +80,14 @@ def run_netstat(): # type: () -> str
     return cmd.stdout
 
 def tokenize_netstat_headers(headers_line, all_lines): # type: (str, list) -> list
+    """
+    Tokenize header line of netstat output.
+
+    :param headers_line: The string containing all the headers
+    :param all_lines: List of all lines of netstat output (headers + data lines)
+    :return: List of header strings in correct order
+    """
+
     def is_whitespace_column(index): # type: (int) -> bool
         for line in all_lines:
             # Index is not on this line
@@ -95,6 +124,15 @@ def tokenize_netstat_headers(headers_line, all_lines): # type: (str, list) -> li
     return headers
 
 def tokenize_netstat_data(data_lines, headers): # type: (list, list) -> list
+    """
+    Tokenize list of data lines of netstat output.
+
+    :param data_lines: List of data lines of netstat output to tokenize
+    :param headers: List of headers for given data lines
+    :raises Exception: If info in data lines does not match given headers
+    :return: List of dictionaries containing information from given data lines
+    """
+
     data_list = []
 
     for line in data_lines:
@@ -112,6 +150,18 @@ def tokenize_netstat_data(data_lines, headers): # type: (list, list) -> list
     return data_list
 
 def parse_netstat_output(stdout): # type: (str) -> list
+    """
+    Parse output of netstat command.
+
+    Output is a list of dictionaries. Each dictionary describes the content of
+    a single line of output. Keys in the dictionaries are the column names in
+    netstat output.
+
+    :param stdout: Stdout output of netstat command
+    :raises Exception: If given output does not contain enough lines
+    :return: List of dictionaries (one dict per line)
+    """
+
     all_lines = stdout.strip().split('\n')
     all_lines = [l.strip() for l in all_lines]
 
@@ -131,6 +181,18 @@ def parse_netstat_output(stdout): # type: (str) -> list
     return data_list
 
 def post_process_data(data_list): # type: (list) -> list
+    """
+    Post process parsed netstat data.
+
+    Protocols "udp" and "tcp" are renamed to the more fitting name "udp4"
+    and "tcp4".
+    Copies data. Does not modify input.
+
+    :param data_list: List of dictionaries containing info from netstat
+    :raises Exception: If protocol column could not be found in dictionaries
+    :return: List of modified dictionaries
+    """
+
     # Data entries are guaranteed to all have the same keys, so we
     # just need to check in one of them.
     if 'Proto' not in data_list[0]:
@@ -150,6 +212,17 @@ def post_process_data(data_list): # type: (list) -> list
     return output
 
 def count_connections(data_list): # type: (list) -> dict
+    """
+    Count connections in given list of dictionaries by connection protocol
+    and connection state.
+
+    :param data_list: List of dictionaries containing info from netstat
+    :raises Exception: If protocol column or state column could not be found
+        in dictionaries
+    :return: Dictionary containing number of connections in given state
+        categorized by connection protocol.
+    """
+
     # Data entries are guaranteed to all have the same keys, so we
     # just need to check in one of them.
     if 'State' not in data_list[0]:
@@ -219,6 +292,10 @@ def count_connections(data_list): # type: (list) -> dict
     return connections
 
 def main(): # type: () -> None
+    """
+    Main function
+    """
+
     if not check_netstat_availability():
         print('Error: netstat not found or not installed', file=sys.stderr)
         sys.exit(1)
