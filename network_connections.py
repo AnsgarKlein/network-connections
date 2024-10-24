@@ -31,7 +31,9 @@ This information is parsed and categorized by connection protocol and
 connection state. It is then printed out in JSON format.
 """
 
+import argparse
 import json
+import os
 import re
 import sys
 
@@ -55,7 +57,7 @@ STATE_MAP = {
 }
 
 
-def get_raw_connection_data(): # type: () -> tuple
+def get_raw_connection_data(proc='/proc'): # type: (str) -> tuple
     """
     Read kernel files and return tuple of contents.
 
@@ -65,8 +67,13 @@ def get_raw_connection_data(): # type: () -> tuple
     Return tuple of list of line strings.
     Every file is returned in a separate list.
 
+    :param proc: Path to /proc. Usually only needed for testing purposes.
+    :raises Exception: When /proc path given does not exist
     :return: 4-Tuple of list of lines of four files
     """
+
+    if not os.path.exists(proc):
+        raise Exception(f'Path "{proc}" does not exist!')
 
     def get_lines_of_file(path): # type: (str) -> list
         with open(path, encoding='ascii') as f:
@@ -76,10 +83,10 @@ def get_raw_connection_data(): # type: () -> tuple
             lines = [l for l in lines if l != '']
             return lines
 
-    tcp4 = get_lines_of_file('/proc/net/tcp')
-    tcp6 = get_lines_of_file('/proc/net/tcp6')
-    udp4 = get_lines_of_file('/proc/net/udp')
-    udp6 = get_lines_of_file('/proc/net/udp6')
+    tcp4 = get_lines_of_file(os.path.join(proc, 'net/tcp'))
+    tcp6 = get_lines_of_file(os.path.join(proc, 'net/tcp6'))
+    udp4 = get_lines_of_file(os.path.join(proc, 'net/udp'))
+    udp6 = get_lines_of_file(os.path.join(proc, 'net/udp6'))
 
     # Skip headers
     tcp4 = tcp4[1:]
@@ -353,8 +360,27 @@ def main(): # type: () -> None
     Main function
     """
 
+    # Parse command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'path',
+        type=str,
+        metavar='PATH',
+        nargs='?',
+        default='/proc',
+        help='''
+            Path of /proc directory.
+            This is usually /proc. Other directories are only helpful for
+            testing purposes.''')
+    args = parser.parse_args()
+
+    proc_path = args.path
+    if not os.path.exists(proc_path):
+        print(f'Error: Given /proc path "{proc_path}" does not exist!', file=sys.stderr)
+        sys.exit(1)
+
     # Read raw connection info
-    tcp4, tcp6, udp4, udp6 = get_raw_connection_data()
+    tcp4, tcp6, udp4, udp6 = get_raw_connection_data(proc_path)
 
     # Parse connection info and post-process it
     connections = parse_raw_connection_data(tcp4, tcp6, udp4, udp6)
