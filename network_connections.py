@@ -292,10 +292,11 @@ def count_connections(connections): # type: (list) -> dict
 
     # Data entries are guaranteed to all have the same keys, so we
     # just need to check in one of them.
-    if 'st' not in connections[0]:
-        raise Exception('Could not find state entry "st" in connection entry')
-    if 'proto' not in connections[0]:
-        raise Exception('Could not find protocol entry "proto" in connection entry')
+    if len(connections) > 0:
+        if 'st' not in connections[0]:
+            raise Exception('Could not find state entry "st" in connection entry')
+        if 'proto' not in connections[0]:
+            raise Exception('Could not find protocol entry "proto" in connection entry')
 
     supported_states = set(STATE_MAP.values())
     supported_protocols = {'tcp4', 'tcp6', 'udp4', 'udp6'}
