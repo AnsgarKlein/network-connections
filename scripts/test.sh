@@ -11,11 +11,11 @@ VALIDATION_SCRIPT='tests/validate.py'
 CONNECTION_SCRIPT="./network_connections.py"
 
 # Test all resources one by one
+test_failed='false'
 for resource in "$RESOURCE_DIR/"*; do
     "$CONNECTION_SCRIPT" "$resource" | "$VALIDATION_SCRIPT"
     test_result=$?
 
-    test_failed='false'
     if [[ "$test_result" -eq 0 ]] ;then
         printf "%-75s\e[0;32m%s\e[0m\n" "Testing ${resource} ..." "OK"
     else
