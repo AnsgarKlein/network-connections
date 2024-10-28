@@ -7,11 +7,12 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
 cd "$PROJECT_ROOT" || exit 1
 
 RESOURCE_DIR='tests/resources'
+VALIDATION_SCRIPT='tests/validate.py'
 CONNECTION_SCRIPT="./network_connections.py"
 
 # Test all resources one by one
 for resource in "$RESOURCE_DIR/"*; do
-    $CONNECTION_SCRIPT "$resource" 2> /dev/null > /dev/null
+    "$CONNECTION_SCRIPT" "$resource" | "$VALIDATION_SCRIPT"
     test_result=$?
 
     test_failed='false'
