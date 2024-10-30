@@ -75,7 +75,11 @@ def get_raw_connection_data(proc='/proc'): # type: (str) -> tuple
     if not os.path.exists(proc):
         raise Exception(f'Path "{proc}" does not exist!')
 
-    def get_lines_of_file(path): # type: (str) -> list
+    def get_lines_of_file(path, optional=False): # type: (str, bool) -> list
+        # Skip optional files silently
+        if optional and not os.path.exists(path):
+            return []
+
         with open(path, encoding='ascii') as f:
             content = f.read()
             lines = content.split('\n')
@@ -83,10 +87,13 @@ def get_raw_connection_data(proc='/proc'): # type: (str) -> tuple
             lines = [l for l in lines if l != '']
             return lines
 
+    # Read lines of all files
+    # IPv6 files may not exist, because host may not support IPv6 or IPv6 has
+    # been disabled. Thus missing IPv6 files are silently ignored.
     tcp4 = get_lines_of_file(os.path.join(proc, 'net/tcp'))
-    tcp6 = get_lines_of_file(os.path.join(proc, 'net/tcp6'))
+    tcp6 = get_lines_of_file(os.path.join(proc, 'net/tcp6'), True)
     udp4 = get_lines_of_file(os.path.join(proc, 'net/udp'))
-    udp6 = get_lines_of_file(os.path.join(proc, 'net/udp6'))
+    udp6 = get_lines_of_file(os.path.join(proc, 'net/udp6'), True)
 
     # Skip headers
     tcp4 = tcp4[1:]
