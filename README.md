@@ -4,8 +4,12 @@ network-connections
 ===================
 
 No dependency Python script that outputs number of open network connections
-categorized by state on Linux system.
+categorized by state on Linux system. Similar to what `netstat` does.
 Useful for integrating in monitoring systems.
+
+It does this by reading and parsing virtual files `/proc/net/tcp`,
+`/proc/net/tcp6`, `/proc/net/udp`, `/proc/net/udp6` provided by the Linux
+kernel.
 
 
 Usage
@@ -120,3 +124,41 @@ Output:
     }
 }
 ```
+
+The connection states match `netstat`s ouput:
+
+  - **ESTABLISHED**  
+    The socket has an established connection.
+
+  - **SYN_SENT**  
+    The socket is actively attempting to establish a connection.
+
+  - **SYN_RECV**  
+    A connection request has been received from the network.
+
+  - **FIN_WAIT1**  
+    The socket is closed, and the connection is shutting down.
+
+  - **FIN_WAIT2**  
+    Connection is closed, and the socket is waiting for a shutdown from the remote end.
+
+  - **TIME_WAIT**  
+    The socket is waiting after close to handle packets still in the network.
+
+  - **CLOSE**  
+    The socket is not being used.
+
+  - **CLOSE_WAIT**  
+    The remote end has shut down, waiting for the socket to close.
+
+  - **LAST_ACK**  
+    The remote end has shut down, and the socket is closed. Waiting for acknowledgement.
+
+  - **LISTEN**  
+    The socket is listening for incoming connections.
+
+  - **CLOSING**  
+    Both sockets are shut down but we still don't have all our data sent.
+
+  - **UNKNOWN**  
+    The state of the socket is unknown.
